@@ -1,0 +1,39 @@
+{
+  "name": "@dreamer/video",
+  "version": "1.0.0-alpha.1",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/mod.ts",
+    "./client": "./src/client/mod.ts"
+  },
+  "publish": {
+    "include": [
+      "src/mod.ts",
+      "src/client/mod.ts",
+      "LICENSE.md",
+      "README.md"
+    ],
+    "exclude": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/test/**",
+      "**/tests/**"
+    ]
+  },
+  "lint": {
+    "include": [
+      "src/"
+    ],
+    "rules": {
+      "tags": [
+        "recommended"
+      ],
+      "exclude": [
+        "no-explicit-any"
+      ]
+    }
+  },
+  "imports": {
+    "@dreamer/test": "jsr:@dreamer/test@^1.0.0-alpha.1"
+  }
+}
