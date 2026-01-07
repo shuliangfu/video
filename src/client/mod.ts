@@ -7,6 +7,146 @@
  * 注意：客户端功能受限，仅支持简单的视频操作。
  */
 
+/**
+ * Canvas 接口（兼容 HTMLCanvasElement）
+ */
+interface CanvasElement {
+  width: number;
+  height: number;
+  getContext(contextId: "2d"): CanvasRenderingContext2D | null;
+}
+
+/**
+ * Canvas 2D 渲染上下文接口
+ */
+interface CanvasRenderingContext2D {
+  drawImage(
+    image: VideoElement | CanvasElement,
+    dx: number,
+    dy: number,
+    dWidth?: number,
+    dHeight?: number,
+  ): void;
+  getImageData(sx: number, sy: number, sw: number, sh: number): ImageData;
+  putImageData(imageData: ImageData, dx: number, dy: number): void;
+  globalAlpha: number;
+  filter: string;
+}
+
+/**
+ * 图像数据接口
+ */
+interface ImageData {
+  width: number;
+  height: number;
+  data: Uint8ClampedArray;
+}
+
+/**
+ * 视频元素接口（兼容 HTMLVideoElement）
+ */
+interface VideoElement {
+  duration: number;
+  videoWidth: number;
+  videoHeight: number;
+  currentTime: number;
+  src: string;
+  paused: boolean;
+  ended: boolean;
+  onloadedmetadata: ((this: VideoElement, ev: Event) => void) | null;
+  onerror: ((this: VideoElement, error: Event) => void) | null;
+  onseeked: ((this: VideoElement, ev: Event) => void) | null;
+  play(): Promise<void>;
+  pause(): void;
+  captureStream?(): MediaStream;
+}
+
+/**
+ * 媒体流接口（兼容 MediaStream）
+ */
+interface MediaStream {
+  /** 媒体流的唯一标识符 */
+  id: string;
+  /** 是否处于活动状态 */
+  active: boolean;
+  /** 获取所有音频轨道 */
+  getAudioTracks(): MediaStreamTrack[];
+  /** 获取所有视频轨道 */
+  getVideoTracks(): MediaStreamTrack[];
+  /** 获取所有轨道 */
+  getTracks(): MediaStreamTrack[];
+  /** 根据轨道 ID 获取轨道 */
+  getTrackById(trackId: string): MediaStreamTrack | null;
+  /** 添加轨道 */
+  addTrack(track: MediaStreamTrack): void;
+  /** 移除轨道 */
+  removeTrack(track: MediaStreamTrack): void;
+  /** 克隆媒体流 */
+  clone(): MediaStream;
+}
+
+/**
+ * 媒体轨道接口（兼容 MediaStreamTrack）
+ */
+interface MediaStreamTrack {
+  /** 轨道的唯一标识符 */
+  id: string;
+  /** 轨道类型（audio 或 video） */
+  kind: "audio" | "video";
+  /** 轨道标签 */
+  label: string;
+  /** 是否启用 */
+  enabled: boolean;
+  /** 是否静音 */
+  muted: boolean;
+  /** 轨道状态 */
+  readyState: "live" | "ended";
+  /** 停止轨道 */
+  stop(): void;
+}
+
+/**
+ * 媒体录制器接口（兼容 MediaRecorder）
+ */
+interface MediaRecorder {
+  /** MIME 类型 */
+  mimeType: string;
+  /** 录制状态 */
+  state: "inactive" | "recording" | "paused";
+  /** 视频码率（bps） */
+  videoBitsPerSecond: number;
+  /** 音频码率（bps） */
+  audioBitsPerSecond: number;
+  /** 流对象 */
+  stream: MediaStream;
+  /** 数据可用事件 */
+  ondataavailable: ((event: { data: Blob }) => void) | null;
+  /** 停止事件 */
+  onstop: (() => void) | null;
+  /** 错误事件 */
+  onerror: ((event: { error: Error }) => void) | null;
+  /** 暂停事件 */
+  onpause: (() => void) | null;
+  /** 恢复事件 */
+  onresume: (() => void) | null;
+  /** 开始录制 */
+  start(timeslice?: number): void;
+  /** 停止录制 */
+  stop(): void;
+  /** 暂停录制 */
+  pause(): void;
+  /** 恢复录制 */
+  resume(): void;
+  /** 请求数据 */
+  requestData(): void;
+}
+
+/**
+ * 媒体录制器构造函数
+ */
+interface MediaRecorderConstructor {
+  new (stream: MediaStream, options?: { mimeType?: string }): MediaRecorder;
+}
 
 /**
  * 视频信息接口
@@ -61,14 +201,16 @@ export interface FilterOptions {
  * @returns 视频信息
  */
 export async function getVideoInfo(
-  video: HTMLVideoElement | File,
+  video: VideoElement | File,
 ): Promise<VideoInfo> {
   if (video instanceof File) {
     // 从文件获取信息
-    const videoElement = document.createElement("video");
+    const videoElement = (globalThis as unknown as {
+      document: { createElement: (tag: string) => VideoElement };
+    }).document.createElement("video") as VideoElement;
     videoElement.src = URL.createObjectURL(video);
 
-    return new Promise((resolve, reject) => {
+    return await new Promise<VideoInfo>((resolve, reject) => {
       videoElement.onloadedmetadata = () => {
         const format = video.name.split(".").pop()?.toLowerCase() || "mp4";
         resolve({
@@ -87,7 +229,7 @@ export async function getVideoInfo(
   } else {
     // 从视频元素获取信息
     const format = "mp4"; // 无法从元素获取格式
-    return {
+    return await Promise.resolve({
       duration: video.duration,
       width: video.videoWidth,
       height: video.videoHeight,
@@ -95,7 +237,7 @@ export async function getVideoInfo(
       size: 0,
       format,
       mimeType: "video/mp4",
-    };
+    });
   }
 }
 
@@ -104,7 +246,7 @@ export async function getVideoInfo(
  *
  * @param video 视频元素
  */
-export async function play(video: HTMLVideoElement): Promise<void> {
+export async function play(video: VideoElement): Promise<void> {
   await video.play();
 }
 
@@ -113,7 +255,7 @@ export async function play(video: HTMLVideoElement): Promise<void> {
  *
  * @param video 视频元素
  */
-export function pause(video: HTMLVideoElement): void {
+export function pause(video: VideoElement): void {
   video.pause();
 }
 
@@ -123,7 +265,7 @@ export function pause(video: HTMLVideoElement): void {
  * @param video 视频元素
  * @param time 时间（秒）
  */
-export function seek(video: HTMLVideoElement, time: number): void {
+export function seek(video: VideoElement, time: number): void {
   video.currentTime = time;
 }
 
@@ -133,7 +275,7 @@ export function seek(video: HTMLVideoElement, time: number): void {
  * @param video 视频元素
  * @returns 当前时间（秒）
  */
-export function getCurrentTime(video: HTMLVideoElement): number {
+export function getCurrentTime(video: VideoElement): number {
   return video.currentTime;
 }
 
@@ -143,7 +285,7 @@ export function getCurrentTime(video: HTMLVideoElement): number {
  * @param video 视频元素
  * @returns 时长（秒）
  */
-export function getDuration(video: HTMLVideoElement): number {
+export function getDuration(video: VideoElement): number {
   return video.duration;
 }
 
@@ -157,7 +299,7 @@ export function getDuration(video: HTMLVideoElement): number {
  * @returns 裁剪后的视频 Blob
  */
 export async function crop(
-  video: HTMLVideoElement | File,
+  video: VideoElement | File,
   options: CropOptions,
 ): Promise<Blob> {
   const videoElement = video instanceof File
@@ -171,29 +313,28 @@ export async function crop(
         videoElement.currentTime = options.start;
 
         // 等待视频跳转到指定时间
-        await new Promise((resolve) => {
-          videoElement.onseeked = resolve;
+        await new Promise<void>((resolve) => {
+          videoElement.onseeked = () => resolve();
         });
 
         // 创建 MediaRecorder 录制片段
         // 注意：captureStream 可能不被所有浏览器支持
-        const videoEl = videoElement as HTMLVideoElement & {
-          captureStream?: () => MediaStream;
-        };
-
-        if (!videoEl.captureStream) {
+        if (!videoElement.captureStream) {
           reject(new Error("浏览器不支持 captureStream，无法进行视频裁剪"));
           return;
         }
 
-        const stream = videoEl.captureStream();
-        const mediaRecorder = new MediaRecorder(stream, {
+        const stream = videoElement.captureStream();
+        const MediaRecorderClass =
+          (globalThis as unknown as { MediaRecorder: MediaRecorderConstructor })
+            .MediaRecorder;
+        const mediaRecorder = new MediaRecorderClass(stream, {
           mimeType: "video/webm",
         });
 
         const chunks: Blob[] = [];
 
-        mediaRecorder.ondataavailable = (event) => {
+        mediaRecorder.ondataavailable = (event: { data: Blob }) => {
           if (event.data.size > 0) {
             chunks.push(event.data);
           }
@@ -222,30 +363,212 @@ export async function crop(
 /**
  * 应用滤镜
  *
- * 注意：客户端滤镜功能受限，使用 Canvas API 实现。
+ * 使用 Canvas API 实现视频滤镜效果。
  *
  * @param video 视频元素
  * @param options 滤镜选项
- * @returns 处理后的视频 Blob（简化实现，返回原视频）
+ * @returns 处理后的视频 Blob
  */
-export async function applyFilter(
-  video: HTMLVideoElement,
+export function applyFilter(
+  video: VideoElement,
   options: FilterOptions,
 ): Promise<Blob> {
-  // 客户端滤镜实现较复杂，这里提供基础接口
-  // 实际实现需要使用 Canvas API 逐帧处理
-  console.warn("客户端视频滤镜功能受限，建议使用服务端处理");
+  return new Promise((resolve, reject) => {
+    // 等待视频元数据加载
+    if (video.duration === 0 || isNaN(video.duration)) {
+      const onLoaded = () => {
+        video.onloadedmetadata = null;
+        processVideo();
+      };
+      video.onloadedmetadata = onLoaded;
+      return;
+    }
 
-  // 返回原视频（简化实现）
-  return new Blob();
+    processVideo();
+
+    function processVideo() {
+      try {
+        // 创建 Canvas 元素
+        const canvas = (globalThis as unknown as {
+          document: { createElement: (tag: string) => CanvasElement };
+        }).document.createElement("canvas") as CanvasElement;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("无法获取 Canvas 2D 上下文"));
+          return;
+        }
+
+        // 应用滤镜效果
+        applyFilterToContext(ctx, options);
+
+        // 创建 MediaStream 用于录制
+        // 注意：滤镜效果已经通过 applyFilterToContext 应用到 ctx 上
+        // Canvas.captureStream() 会自动捕获 Canvas 上绘制的内容（包括滤镜效果）
+        const canvasWithStream = canvas as CanvasElement & {
+          captureStream?: () => MediaStream;
+        };
+        const stream = canvasWithStream.captureStream
+          ? canvasWithStream.captureStream()
+          : createCanvasStream(canvas, video);
+
+        if (!stream) {
+          reject(new Error("无法创建媒体流，浏览器可能不支持 Canvas 录制"));
+          return;
+        }
+
+        // 创建 MediaRecorder
+        const MediaRecorderClass =
+          (globalThis as unknown as { MediaRecorder: MediaRecorderConstructor })
+            .MediaRecorder;
+        const mediaRecorder = new MediaRecorderClass(stream, {
+          mimeType: "video/webm",
+        });
+
+        const chunks: Blob[] = [];
+
+        mediaRecorder.ondataavailable = (event: { data: Blob }) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "video/webm" });
+          resolve(blob);
+        };
+
+        mediaRecorder.onerror = (event: { error: Error }) => {
+          reject(event.error);
+        };
+
+        // 开始录制
+        mediaRecorder.start();
+
+        // 记录原始时间
+        const originalTime = video.currentTime;
+
+        // 获取 requestAnimationFrame
+        const raf = (globalThis as unknown as {
+          requestAnimationFrame: (callback: () => void) => number;
+        }).requestAnimationFrame;
+
+        // 播放视频并开始绘制
+        video.play().then(() => {
+          // 绘制视频帧到 Canvas
+          const drawFrame = () => {
+            if (video.ended || video.paused) {
+              mediaRecorder.stop();
+              return;
+            }
+
+            // 绘制当前帧（ctx 已经检查过不为 null）
+            ctx!.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // 继续下一帧
+            raf(drawFrame);
+          };
+
+          drawFrame();
+
+          // 录制整个视频时长
+          setTimeout(() => {
+            video.pause();
+            video.currentTime = originalTime;
+            mediaRecorder.stop();
+          }, video.duration * 1000);
+        }).catch(reject);
+      } catch (error) {
+        reject(error);
+      }
+    }
+  });
+}
+
+/**
+ * 应用滤镜效果到 Canvas 上下文
+ */
+function applyFilterToContext(
+  ctx: CanvasRenderingContext2D,
+  options: FilterOptions,
+): void {
+  if (options.type === "preset") {
+    // 预设滤镜
+    switch (options.preset) {
+      case "vintage":
+        ctx.filter = "sepia(1) contrast(1.1) brightness(0.9)";
+        break;
+      case "black-white":
+        ctx.filter = "grayscale(1)";
+        break;
+      case "sepia":
+        ctx.filter = "sepia(1)";
+        break;
+      case "blur":
+        ctx.filter = "blur(2px)";
+        break;
+      default:
+        ctx.filter = "none";
+    }
+  } else {
+    // 自定义滤镜
+    const filters: string[] = [];
+
+    if (options.type === "brightness" && options.value !== undefined) {
+      filters.push(`brightness(${options.value})`);
+    } else if (options.type === "contrast" && options.value !== undefined) {
+      filters.push(`contrast(${options.value})`);
+    } else if (options.type === "saturation" && options.value !== undefined) {
+      filters.push(`saturate(${options.value})`);
+    }
+
+    ctx.filter = filters.length > 0 ? filters.join(" ") : "none";
+  }
+}
+
+/**
+ * 创建 Canvas 媒体流（兼容性处理）
+ *
+ * 优先使用 Canvas.captureStream()，如果不支持则回退到视频元素的 captureStream()
+ * 注意：滤镜效果已经通过 applyFilterToContext 应用到 Canvas 上下文上，
+ * Canvas.captureStream() 会自动捕获 Canvas 上绘制的内容（包括滤镜效果）
+ */
+function createCanvasStream(
+  canvas: CanvasElement,
+  video: VideoElement,
+): MediaStream | null {
+  // 如果 Canvas 有 captureStream 方法，直接使用（最优先）
+  // 这会自动捕获 Canvas 上绘制的内容，包括已应用的滤镜效果
+  const canvasWithStream = canvas as CanvasElement & {
+    captureStream?: () => MediaStream;
+  };
+  if (canvasWithStream.captureStream) {
+    return canvasWithStream.captureStream();
+  }
+
+  // 如果 Canvas 不支持 captureStream，但视频元素支持，使用视频元素的
+  // 注意：这种情况下滤镜效果可能无法应用，因为直接使用视频流
+  if (video.captureStream) {
+    console.warn(
+      "Canvas.captureStream 不支持，使用视频元素流（滤镜效果可能无法应用）",
+    );
+    return video.captureStream();
+  }
+
+  return null;
 }
 
 /**
  * 从文件创建视频元素
  */
-function createVideoElementFromFile(file: File): Promise<HTMLVideoElement> {
+function createVideoElementFromFile(file: File): Promise<VideoElement> {
   return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
+    const video = (globalThis as unknown as {
+      document: { createElement: (tag: string) => VideoElement };
+    }).document.createElement("video") as VideoElement;
     video.src = URL.createObjectURL(file);
     video.onloadedmetadata = () => resolve(video);
     video.onerror = reject;
