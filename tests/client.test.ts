@@ -2,8 +2,8 @@
  * @fileoverview Video 客户端测试
  */
 
-import { describe, expect, it } from "jsr:@dreamer/test@^1.0.0-alpha.1";
-import { getVideoInfo, type VideoInfo } from "../src/client/mod.ts";
+import { describe, expect, it } from "@dreamer/test";
+import { type VideoInfo } from "../src/client/mod.ts";
 
 describe("Video 客户端", () => {
   describe("getVideoInfo", () => {

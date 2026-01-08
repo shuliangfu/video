@@ -8,6 +8,19 @@
  * 如果未安装 FFmpeg，会提示安装方法。
  */
 
+// 导入 runtime-adapter 提供的 API
+import {
+  createCommand,
+  IS_BUN,
+  IS_DENO,
+  makeTempDir,
+  makeTempFile,
+  remove,
+  stat,
+  writeFile,
+  writeTextFile,
+} from "@dreamer/runtime-adapter";
+
 /**
  * 视频信息接口
  */
@@ -195,17 +208,28 @@ export interface VideoProcessorOptions {
  * 获取操作系统类型
  */
 function getOS(): "macos" | "linux" | "windows" | "unknown" {
-  const os = Deno.build.os;
-  if (os === "darwin") return "macos";
-  if (os === "linux") return "linux";
-  if (os === "windows") return "windows";
+  if (IS_DENO) {
+    // Deno 环境
+    const os = (globalThis as any).Deno.build.os;
+    if (os === "darwin") return "macos";
+    if (os === "linux") return "linux";
+    if (os === "windows") return "windows";
+    return "unknown";
+  } else if (IS_BUN) {
+    // Bun 环境
+    const platform = (globalThis as any).process?.platform;
+    if (platform === "darwin") return "macos";
+    if (platform === "linux") return "linux";
+    if (platform === "win32") return "windows";
+    return "unknown";
+  }
   return "unknown";
 }
 
 /**
  * 生成安装提示信息
  */
-function getInstallHint(): string {
+async function getInstallHint(): Promise<string> {
   const os = getOS();
 
   let installCommand = "";
@@ -217,21 +241,21 @@ function getInstallHint(): string {
       break;
     case "linux":
       try {
-        const aptCheck = new Deno.Command("apt-get", {
+        const aptCheck = createCommand("apt-get", {
           args: ["--version"],
           stdout: "piped",
           stderr: "piped",
         });
-        aptCheck.outputSync();
+        await aptCheck.output();
         installCommand = "sudo apt-get install -y ffmpeg";
       } catch {
         try {
-          const yumCheck = new Deno.Command("yum", {
+          const yumCheck = createCommand("yum", {
             args: ["--version"],
             stdout: "piped",
             stderr: "piped",
           });
-          yumCheck.outputSync();
+          await yumCheck.output();
           installCommand = "sudo yum install -y ffmpeg";
         } catch {
           installCommand = "请使用您的 Linux 发行版的包管理器安装 FFmpeg";
@@ -286,7 +310,7 @@ async function checkFFmpeg(ffmpegPath?: string): Promise<boolean> {
   const command = ffmpegPath || "ffmpeg";
 
   try {
-    const checkCmd = new Deno.Command(command, {
+    const checkCmd = createCommand(command, {
       args: ["-version"],
       stdout: "piped",
       stderr: "piped",
@@ -307,7 +331,7 @@ async function tryAutoInstall(): Promise<boolean> {
 
   try {
     if (os === "macos") {
-      const brewCheck = new Deno.Command("brew", {
+      const brewCheck = createCommand("brew", {
         args: ["--version"],
         stdout: "piped",
         stderr: "piped",
@@ -318,7 +342,7 @@ async function tryAutoInstall(): Promise<boolean> {
         console.log("🔍 检测到 Homebrew，正在尝试安装 FFmpeg...");
         console.log("⏳ 这可能需要几分钟时间，请稍候...");
 
-        const installCmd = new Deno.Command("brew", {
+        const installCmd = createCommand("brew", {
           args: ["install", "ffmpeg"],
           stdout: "inherit",
           stderr: "inherit",
@@ -374,14 +398,26 @@ async function ensureFFmpeg(
     const installed = await tryAutoInstall();
 
     if (installed) {
+      // 安装成功后，再次检查是否可用
       const isNowAvailable = await checkFFmpeg(ffmpegPath);
       if (isNowAvailable) {
         return ffmpegPath || "ffmpeg";
+      } else {
+        // 安装成功但检查时仍不可用，可能是 PATH 未刷新或需要重启终端
+        console.warn(
+          "⚠️  FFmpeg 已安装，但当前会话中仍不可用。",
+        );
+        console.warn(
+          "💡 请尝试：1) 刷新 PATH 环境变量；2) 重启终端；3) 重新运行程序。",
+        );
+        // 继续抛出错误，提示用户手动处理
       }
     }
+    // 如果 autoInstall 为 true 但安装失败，继续抛出错误
   }
 
-  const hint = getInstallHint();
+  // 只有在 FFmpeg 不可用且（未启用自动安装 或 自动安装失败）时才抛出错误
+  const hint = await getInstallHint();
   throw new Error(`FFmpeg 未找到。${hint}`);
 }
 
@@ -401,7 +437,7 @@ class FFmpegProcessor implements VideoProcessor {
    * 执行 FFmpeg 命令
    */
   private async executeFFmpeg(args: string[]): Promise<void> {
-    const cmd = new Deno.Command(this.ffmpegCommand, {
+    const cmd = createCommand(this.ffmpegCommand, {
       args,
       stdout: "piped",
       stderr: "piped",
@@ -432,7 +468,7 @@ class FFmpegProcessor implements VideoProcessor {
         "-",
       ];
 
-      const cmd = new Deno.Command(this.ffmpegCommand, {
+      const cmd = createCommand(this.ffmpegCommand, {
         args,
         stdout: "piped",
         stderr: "piped",
@@ -483,7 +519,7 @@ class FFmpegProcessor implements VideoProcessor {
 
       // 获取文件大小
       const size = typeof video === "string"
-        ? (await Deno.stat(videoPath)).size
+        ? (await stat(videoPath)).size
         : video.length;
 
       // 检测格式
@@ -505,7 +541,7 @@ class FFmpegProcessor implements VideoProcessor {
     } finally {
       if (typeof video !== "string") {
         try {
-          await Deno.remove(videoPath);
+          await remove(videoPath);
         } catch {
           // 忽略删除错误
         }
@@ -654,9 +690,9 @@ class FFmpegProcessor implements VideoProcessor {
    */
   async merge(videos: string[], options: MergeOptions): Promise<void> {
     // 创建文件列表
-    const listFile = await Deno.makeTempFile({ suffix: ".txt" });
+    const listFile = await makeTempFile({ suffix: ".txt" });
     const listContent = videos.map((v) => `file '${v}'`).join("\n");
-    await Deno.writeTextFile(listFile, listContent);
+    await writeTextFile(listFile, listContent);
 
     try {
       const args = [
@@ -675,7 +711,7 @@ class FFmpegProcessor implements VideoProcessor {
       await this.executeFFmpeg(args);
     } finally {
       try {
-        await Deno.remove(listFile);
+        await remove(listFile);
       } catch {
         // 忽略删除错误
       }
@@ -771,11 +807,11 @@ class FFmpegProcessor implements VideoProcessor {
    * 创建临时文件
    */
   private async createTempFile(data: Uint8Array): Promise<string> {
-    const dir = this.tempDir || await Deno.makeTempDir();
+    const dir = this.tempDir || await makeTempDir();
     const tempFile = `${dir}/temp_${Date.now()}_${
       Math.random().toString(36).substring(7)
     }.mp4`;
-    await Deno.writeFile(tempFile, data);
+    await writeFile(tempFile, data);
     return tempFile;
   }
 

@@ -1,5 +1,7 @@
 // 测试 FFmpeg 检测
-const cmd = new Deno.Command("ffmpeg", {
+import { createCommand } from "@dreamer/runtime-adapter";
+
+const cmd = createCommand("ffmpeg", {
   args: ["-version"],
   stdout: "piped",
   stderr: "piped",

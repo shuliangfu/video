@@ -5,8 +5,16 @@
  * 需要 FFmpeg 已安装才能运行
  */
 
-import { describe, expect, it } from "jsr:@dreamer/test@^1.0.0-alpha.1";
-import { join } from "jsr:@std/path@^1.0.0/join";
+import { describe, expect, it } from "@dreamer/test";
+// 使用 Node.js 兼容的 path 模块（Bun 和 Deno 都支持）
+import {
+  createCommand,
+  cwd,
+  mkdir,
+  readFile,
+  stat as getFileStat,
+} from "@dreamer/runtime-adapter";
+import { join } from "node:path";
 import {
   addWatermark,
   compress,
@@ -18,19 +26,19 @@ import {
 } from "../src/mod.ts";
 
 // 测试数据目录
-const TEST_DATA_DIR = join(Deno.cwd(), "tests", "data");
+const TEST_DATA_DIR = join(cwd(), "tests", "data");
 const VIDEO1 = join(TEST_DATA_DIR, "风景.mp4");
 const VIDEO2 = join(TEST_DATA_DIR, "美女.mp4");
 
 // 输出目录
-const OUTPUT_DIR = join(Deno.cwd(), "tests", "output");
+const OUTPUT_DIR = join(cwd(), "tests", "output");
 
 /**
  * 检查 FFmpeg 是否可用
  */
 async function checkFFmpegAvailable(): Promise<boolean> {
   try {
-    const cmd = new Deno.Command("ffmpeg", {
+    const cmd = createCommand("ffmpeg", {
       args: ["-version"],
       stdout: "piped",
       stderr: "piped",
@@ -42,10 +50,10 @@ async function checkFFmpegAvailable(): Promise<boolean> {
     }
     return success;
   } catch (error) {
-    // 可能是权限问题
+    // 可能是权限问题或命令不存在
     if (error instanceof Error && error.message.includes("run")) {
       console.warn(
-        "⚠️  需要 --allow-run 权限才能检测 FFmpeg，请使用: deno test --allow-run",
+        "⚠️  需要运行权限才能检测 FFmpeg",
       );
     } else {
       console.warn(
@@ -63,7 +71,7 @@ async function checkFFmpegAvailable(): Promise<boolean> {
 async function cleanupOutput() {
   // 不再清理输出目录，保留测试输出文件
   // try {
-  //   await Deno.remove(OUTPUT_DIR, { recursive: true });
+  //   await remove(OUTPUT_DIR, { recursive: true });
   // } catch {
   //   // 目录不存在，忽略
   // }
@@ -74,7 +82,7 @@ async function cleanupOutput() {
  */
 async function ensureOutputDir() {
   try {
-    await Deno.mkdir(OUTPUT_DIR, { recursive: true });
+    await mkdir(OUTPUT_DIR, { recursive: true });
   } catch {
     // 目录已存在，忽略
   }
@@ -135,7 +143,7 @@ describe("视频实际操作", () => {
       }
 
       try {
-        const videoData = await Deno.readFile(VIDEO1);
+        const videoData = await readFile(VIDEO1);
         const info = await getVideoInfo(videoData);
 
         expect(info).toBeTruthy();
@@ -177,12 +185,14 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         console.log(
-          `✅ 转换完成: ${output} (${(stat.size / 1024 / 1024).toFixed(2)}MB)`,
+          `✅ 转换完成: ${output} (${
+            (fileStat.size / 1024 / 1024).toFixed(2)
+          }MB)`,
         );
       } catch (error) {
         console.error("❌ 视频转换失败:", error);
@@ -205,9 +215,9 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         console.log(`✅ 转换完成: ${output}`);
       } catch (error) {
@@ -233,9 +243,9 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         // 验证转换后的视频信息
         const info = await getVideoInfo(output);
@@ -243,7 +253,7 @@ describe("视频实际操作", () => {
 
         console.log(
           `✅ AV1 转换完成: ${output} (${
-            (stat.size / 1024 / 1024).toFixed(2)
+            (fileStat.size / 1024 / 1024).toFixed(2)
           }MB, ${info.format})`,
         );
       } catch (error) {
@@ -267,7 +277,7 @@ describe("视频实际操作", () => {
       const output = join(OUTPUT_DIR, "compressed-medium.mp4");
 
       try {
-        const originalStat = await Deno.stat(VIDEO1);
+        const originalStat = await getFileStat(VIDEO1);
         const originalSize = originalStat.size;
 
         await compress(VIDEO1, {
@@ -275,7 +285,7 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const compressedStat = await Deno.stat(output);
+        const compressedStat = await getFileStat(output);
         expect(compressedStat.isFile).toBeTruthy();
         expect(compressedStat.size).toBeGreaterThan(0);
 
@@ -310,9 +320,9 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         console.log(`✅ 低质量压缩完成: ${output}`);
       } catch (error) {
@@ -342,9 +352,9 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         // 验证裁剪后的视频时长
         const croppedInfo = await getVideoInfo(output);
@@ -380,12 +390,14 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         console.log(
-          `✅ 缩略图提取完成: ${output} (${(stat.size / 1024).toFixed(2)}KB)`,
+          `✅ 缩略图提取完成: ${output} (${
+            (fileStat.size / 1024).toFixed(2)
+          }KB)`,
         );
       } catch (error) {
         console.error("❌ 缩略图提取失败:", error);
@@ -416,9 +428,9 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         console.log(`✅ 文字水印添加完成: ${output}`);
       } catch (error) {
@@ -461,9 +473,9 @@ describe("视频实际操作", () => {
           output,
         });
 
-        const stat = await Deno.stat(output);
-        expect(stat.isFile).toBeTruthy();
-        expect(stat.size).toBeGreaterThan(0);
+        const fileStat = await getFileStat(output);
+        expect(fileStat.isFile).toBeTruthy();
+        expect(fileStat.size).toBeGreaterThan(0);
 
         // 验证合并后的视频时长（允许一些误差）
         const mergedInfo = await getVideoInfo(output);

@@ -2,18 +2,8 @@
  * @fileoverview Video 服务端测试
  */
 
-import { describe, expect, it } from "jsr:@dreamer/test@^1.0.0-alpha.1";
-import {
-  getVideoInfo,
-  convert,
-  compress,
-  crop,
-  merge,
-  addWatermark,
-  extractThumbnail,
-  createVideoProcessor,
-  type VideoInfo,
-} from "../src/mod.ts";
+import { describe, expect, it } from "@dreamer/test";
+import { createVideoProcessor, getVideoInfo } from "../src/mod.ts";
 
 describe("Video 服务端", () => {
   describe("createVideoProcessor", () => {
