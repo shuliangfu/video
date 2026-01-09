@@ -1,8 +1,13 @@
 # @dreamer/video
 
-一个用于 Deno 的视频处理库，提供视频处理、视频转换、视频压缩等功能。
+> 一个兼容 Deno 和 Bun 的视频处理库，提供视频处理、视频转换、视频压缩等功能
 
-## 功能
+[![JSR](https://jsr.io/badges/@dreamer/video)](https://jsr.io/@dreamer/video)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+---
+
+## 🎯 功能
 
 视频处理库，用于视频处理、视频转换、视频压缩等场景，支持服务端和客户端。
 
@@ -32,8 +37,8 @@ deno add jsr:@dreamer/video
 
 ## 环境兼容性
 
-- **Deno 版本**：要求 Deno 2.5 或更高版本
-- **服务端**：✅ 支持（Deno 运行时，使用 FFmpeg）
+- **运行时要求**：Deno 2.5+ 或 Bun 1.0+
+- **服务端**：✅ 支持（兼容 Deno 和 Bun 运行时，使用 FFmpeg）
   - 使用 FFmpeg 命令行工具
   - 支持所有视频处理功能
   - 自动检测和安装 FFmpeg（macOS）
@@ -339,3 +344,32 @@ seek(video, 10); // 跳转到第 10 秒
 
 - [客户端文档](./src/client/README.md) - 客户端使用说明
 - [FFmpeg 官网](https://ffmpeg.org/) - FFmpeg 官方文档
+
+---
+
+## 📝 备注
+
+- **服务端和客户端分离**：通过 `/client` 子路径明确区分服务端和客户端代码
+- **统一接口**：服务端和客户端使用相同的 API 接口，降低学习成本
+- **类型安全**：完整的 TypeScript 类型支持
+- **依赖**：服务端需要 FFmpeg（可选），客户端使用浏览器原生 API
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+---
+
+## 📄 许可证
+
+MIT License - 详见 [LICENSE.md](./LICENSE.md)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by Dreamer Team**
+
+</div>

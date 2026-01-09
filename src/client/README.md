@@ -1,6 +1,11 @@
 # @dreamer/video/client
 
-视频处理库 - 客户端实现
+> 一个用于浏览器的视频处理库，提供视频处理、视频转换、视频压缩等功能（功能受限）
+
+[![JSR](https://jsr.io/badges/@dreamer/video/client)](https://jsr.io/@dreamer/video/client)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+---
 
 使用浏览器原生 Video API 和 MediaRecorder API 实现视频处理功能，功能受限。
 
@@ -10,9 +15,18 @@
 
 ## 特性
 
-- **视频信息提取**：时长、分辨率、格式、文件大小
-- **视频播放控制**：播放、暂停、跳转
-- **视频裁剪**：提取视频片段（功能受限）
+- **视频信息提取**：
+  - 视频时长
+  - 视频分辨率
+  - 视频格式
+  - 文件大小
+- **视频播放控制**：
+  - 播放视频
+  - 暂停视频
+  - 跳转到指定时间
+- **视频裁剪**：
+  - 提取视频片段（功能受限）
+  - 基于浏览器原生 API
 
 ## 安装
 
@@ -38,7 +52,7 @@ import {
 - **依赖**：无需额外依赖，使用浏览器原生 API
 - **API 要求**：Video API、MediaRecorder API
 
-## 使用示例
+## 🚀 快速开始
 
 ### 基本使用
 
@@ -231,6 +245,32 @@ interface CropOptions {
 - **内存占用**：处理大视频时注意内存占用
 - **Blob URL**：使用 `URL.createObjectURL()` 创建的 URL 需要手动释放（`URL.revokeObjectURL()`）
 
-## 更多信息
+---
 
-- [服务端文档](../README.md) - 服务端使用说明
+## 📝 备注
+
+- **功能受限**：客户端功能受限，仅支持基本操作
+- **浏览器兼容性**：某些功能需要特定浏览器支持
+- **统一接口**：与服务端使用相似的 API 接口，降低学习成本
+- **类型安全**：完整的 TypeScript 类型支持
+- **无外部依赖**：纯 TypeScript 实现
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+---
+
+## 📄 许可证
+
+MIT License - 详见 [LICENSE.md](../../../LICENSE.md)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by Dreamer Team**
+
+</div>
