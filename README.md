@@ -52,38 +52,41 @@ deno add jsr:@dreamer/video
 
 ### 前置要求
 
-服务端需要安装 FFmpeg。库会自动检测并尝试安装（macOS），如果无法自动安装会显示安装提示。
+服务端需要安装
+FFmpeg。库会自动检测并尝试安装（macOS），如果无法自动安装会显示安装提示。
 
 **macOS**：
+
 ```bash
 brew install ffmpeg
 ```
 
 **Linux (Ubuntu/Debian)**：
+
 ```bash
 sudo apt-get install -y ffmpeg
 ```
 
 **Linux (CentOS/RHEL)**：
+
 ```bash
 sudo yum install -y ffmpeg
 ```
 
-**Windows**：
-访问 [FFmpeg 官网](https://ffmpeg.org/download.html) 下载并安装。
+**Windows**： 访问 [FFmpeg 官网](https://ffmpeg.org/download.html) 下载并安装。
 
 ### 基本使用
 
 ```typescript
 import {
-  getVideoInfo,
-  convert,
-  compress,
-  crop,
-  merge,
   addWatermark,
-  extractThumbnail,
+  compress,
+  convert,
   createVideoProcessor,
+  crop,
+  extractThumbnail,
+  getVideoInfo,
+  merge,
 } from "jsr:@dreamer/video";
 
 // 方式1：使用便捷函数（推荐）
@@ -130,7 +133,7 @@ await crop("./input.mp4", {
 // 视频拼接
 await merge(
   ["./video1.mp4", "./video2.mp4"],
-  { output: "./merged.mp4" }
+  { output: "./merged.mp4" },
 );
 
 // 添加文字水印
@@ -193,15 +196,17 @@ await processor.convert("./input.mp4", {
 
 ```typescript
 import {
-  getVideoInfo,
-  play,
-  pause,
-  seek,
   crop,
+  getVideoInfo,
+  pause,
+  play,
+  seek,
 } from "jsr:@dreamer/video/client";
 
 // 从文件获取视频信息
-const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+const fileInput = document.querySelector(
+  'input[type="file"]',
+) as HTMLInputElement;
 const file = fileInput.files?.[0];
 if (file) {
   const info = await getVideoInfo(file);
@@ -224,6 +229,7 @@ seek(video, 10); // 跳转到第 10 秒
 获取视频信息。
 
 **参数**：
+
 - `video`: `string | Uint8Array` - 视频文件路径或数据
 
 **返回**：`Promise<VideoInfo>` - 视频信息
@@ -233,9 +239,11 @@ seek(video, 10); // 跳转到第 10 秒
 转换视频格式。
 
 **参数**：
+
 - `video`: `string` - 视频文件路径
 - `options`: `ConvertOptions` - 转换选项
-  - `format`: `"mp4" | "webm" | "avi" | "mov" | "mkv" | "flv" | "wmv"` - 目标格式
+  - `format`: `"mp4" | "webm" | "avi" | "mov" | "mkv" | "flv" | "wmv"` -
+    目标格式
   - `codec`: `"h264" | "h265" | "vp9" | "av1" | "vp8"` - 视频编码
   - `resolution`: `string` - 分辨率（如 "1920x1080"）
   - `fps`: `number` - 帧率
@@ -248,6 +256,7 @@ seek(video, 10); // 跳转到第 10 秒
 压缩视频。
 
 **参数**：
+
 - `video`: `string` - 视频文件路径
 - `options`: `CompressOptions` - 压缩选项
   - `bitrate`: `number` - 码率（bps）
@@ -260,6 +269,7 @@ seek(video, 10); // 跳转到第 10 秒
 裁剪视频。
 
 **参数**：
+
 - `video`: `string` - 视频文件路径
 - `options`: `CropOptions` - 裁剪选项
   - `start`: `number` - 开始时间（秒）
@@ -272,6 +282,7 @@ seek(video, 10); // 跳转到第 10 秒
 合并视频。
 
 **参数**：
+
 - `videos`: `string[]` - 视频文件路径数组
 - `options`: `MergeOptions` - 合并选项
   - `output`: `string` - 输出文件路径
@@ -281,12 +292,15 @@ seek(video, 10); // 跳转到第 10 秒
 添加水印。
 
 **参数**：
+
 - `video`: `string` - 视频文件路径
 - `options`: `WatermarkOptions` - 水印选项
   - `type`: `"text" | "image"` - 水印类型
   - `text`: `string` - 文字内容（当 type 为 "text" 时）
   - `image`: `string` - 图片路径（当 type 为 "image" 时）
-  - `position`: `"top-left" | "top-right" | "bottom-left" | "bottom-right" | "center"` - 位置
+  - `position`:
+    `"top-left" | "top-right" | "bottom-left" | "bottom-right" | "center"` -
+    位置
   - `fontSize`: `number` - 字体大小（当 type 为 "text" 时）
   - `color`: `string` - 文字颜色（当 type 为 "text" 时）
   - `opacity`: `number` - 透明度（0-1）
@@ -297,6 +311,7 @@ seek(video, 10); // 跳转到第 10 秒
 提取缩略图。
 
 **参数**：
+
 - `video`: `string` - 视频文件路径
 - `options`: `ThumbnailOptions` - 缩略图选项
   - `time`: `number` - 时间点（秒）
@@ -321,6 +336,7 @@ seek(video, 10); // 跳转到第 10 秒
 - **Linux/Windows**：显示详细的安装提示和命令
 
 如果自动安装失败或无法自动安装，会显示清晰的安装提示，包括：
+
 - 操作系统特定的安装命令
 - 安装步骤说明
 - 下载链接（Windows）

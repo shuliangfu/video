@@ -38,11 +38,11 @@ deno add jsr:@dreamer/video
 
 ```typescript
 import {
-  getVideoInfo,
-  play,
-  pause,
-  seek,
   crop,
+  getVideoInfo,
+  pause,
+  play,
+  seek,
 } from "jsr:@dreamer/video/client";
 ```
 
@@ -58,16 +58,18 @@ import {
 
 ```typescript
 import {
-  getVideoInfo,
-  play,
-  pause,
-  seek,
   getCurrentTime,
   getDuration,
+  getVideoInfo,
+  pause,
+  play,
+  seek,
 } from "jsr:@dreamer/video/client";
 
 // 从文件获取视频信息
-const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+const fileInput = document.querySelector(
+  'input[type="file"]',
+) as HTMLInputElement;
 const file = fileInput.files?.[0];
 if (file) {
   const info = await getVideoInfo(file);
@@ -110,7 +112,9 @@ console.log("视频时长:", duration);
 import { crop } from "jsr:@dreamer/video/client";
 
 // 从文件裁剪视频片段
-const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+const fileInput = document.querySelector(
+  'input[type="file"]',
+) as HTMLInputElement;
 const file = fileInput.files?.[0];
 if (file) {
   const croppedBlob = await crop(file, {
@@ -133,6 +137,7 @@ if (file) {
 获取视频信息。
 
 **参数**：
+
 - `video`: `HTMLVideoElement | File` - 视频元素或文件
 
 **返回**：`Promise<VideoInfo>` - 视频信息
@@ -142,6 +147,7 @@ if (file) {
 播放视频。
 
 **参数**：
+
 - `video`: `HTMLVideoElement` - 视频元素
 
 **返回**：`Promise<void>`
@@ -151,6 +157,7 @@ if (file) {
 暂停视频。
 
 **参数**：
+
 - `video`: `HTMLVideoElement` - 视频元素
 
 ### `seek(video, time)`
@@ -158,6 +165,7 @@ if (file) {
 跳转到指定时间。
 
 **参数**：
+
 - `video`: `HTMLVideoElement` - 视频元素
 - `time`: `number` - 时间（秒）
 
@@ -166,6 +174,7 @@ if (file) {
 获取当前播放时间。
 
 **参数**：
+
 - `video`: `HTMLVideoElement` - 视频元素
 
 **返回**：`number` - 当前时间（秒）
@@ -175,6 +184,7 @@ if (file) {
 获取视频时长。
 
 **参数**：
+
 - `video`: `HTMLVideoElement` - 视频元素
 
 **返回**：`number` - 时长（秒）
@@ -184,6 +194,7 @@ if (file) {
 裁剪视频（提取片段）。
 
 **参数**：
+
 - `video`: `HTMLVideoElement | File` - 视频元素或文件
 - `options`: `CropOptions` - 裁剪选项
   - `start`: `number` - 开始时间（秒）
@@ -193,7 +204,8 @@ if (file) {
 
 **返回**：`Promise<Blob>` - 裁剪后的视频 Blob
 
-**注意**：客户端视频裁剪功能受限，仅能提取视频片段，无法进行精确裁剪。需要浏览器支持 `captureStream` API。
+**注意**：客户端视频裁剪功能受限，仅能提取视频片段，无法进行精确裁剪。需要浏览器支持
+`captureStream` API。
 
 ## 类型定义
 
@@ -243,7 +255,8 @@ interface CropOptions {
 - **浏览器兼容性**：某些功能需要特定浏览器支持
 - **文件大小**：处理大文件时可能影响性能
 - **内存占用**：处理大视频时注意内存占用
-- **Blob URL**：使用 `URL.createObjectURL()` 创建的 URL 需要手动释放（`URL.revokeObjectURL()`）
+- **Blob URL**：使用 `URL.createObjectURL()` 创建的 URL
+  需要手动释放（`URL.revokeObjectURL()`）
 
 ---
 
