@@ -246,14 +246,8 @@ async function getInstallHint(): Promise<string> {
           stdout: "piped",
           stderr: "piped",
         });
+        // 新 API 中 output() 会自动处理流关闭
         await aptCheck.output();
-        // 关闭流
-        try {
-          if (aptCheck.stdout) await aptCheck.stdout.cancel();
-          if (aptCheck.stderr) await aptCheck.stderr.cancel();
-        } catch {
-          // 忽略关闭时的错误（流可能已经关闭）
-        }
         installCommand = "sudo apt-get install -y ffmpeg";
       } catch {
         try {
@@ -262,14 +256,8 @@ async function getInstallHint(): Promise<string> {
             stdout: "piped",
             stderr: "piped",
           });
+          // 新 API 中 output() 会自动处理流关闭
           await yumCheck.output();
-          // 关闭流
-          try {
-            if (yumCheck.stdout) await yumCheck.stdout.cancel();
-            if (yumCheck.stderr) await yumCheck.stderr.cancel();
-          } catch {
-            // 忽略关闭时的错误（流可能已经关闭）
-          }
           installCommand = "sudo yum install -y ffmpeg";
         } catch {
           installCommand = "请使用您的 Linux 发行版的包管理器安装 FFmpeg";
@@ -319,6 +307,7 @@ async function getInstallHint(): Promise<string> {
 
 /**
  * 检查 FFmpeg 是否可用
+ * 新版 createCommand API 中，output() 会自动处理进程和流的关闭
  */
 async function checkFFmpeg(ffmpegPath?: string): Promise<boolean> {
   const command = ffmpegPath || "ffmpeg";
@@ -330,30 +319,8 @@ async function checkFFmpeg(ffmpegPath?: string): Promise<boolean> {
       stderr: "piped",
     });
 
+    // 新 API 中 output() 会自动处理所有资源清理
     const { success } = await checkCmd.output();
-
-    // Deno 严格检查要求显式等待进程状态完成
-    // Bun 环境下 output() 已经足够，不需要额外的 status() 调用
-    if (IS_DENO) {
-      try {
-        await checkCmd.status();
-      } catch {
-        // 如果 status() 失败（进程可能已经完成），忽略错误
-      }
-    }
-
-    // 关闭流以释放资源（Deno 严格检查）
-    try {
-      if (checkCmd.stdout) {
-        await checkCmd.stdout.cancel();
-      }
-      if (checkCmd.stderr) {
-        await checkCmd.stderr.cancel();
-      }
-    } catch {
-      // 忽略关闭时的错误（流可能已经关闭）
-    }
-
     return success;
   } catch {
     return false;
@@ -472,6 +439,7 @@ class FFmpegProcessor implements VideoProcessor {
 
   /**
    * 执行 FFmpeg 命令
+   * 新版 createCommand API 中，output() 会自动处理进程和流的关闭
    */
   private async executeFFmpeg(args: string[]): Promise<void> {
     const cmd = createCommand(this.ffmpegCommand, {
@@ -481,33 +449,8 @@ class FFmpegProcessor implements VideoProcessor {
     });
 
     // 使用 output() 等待进程完成并获取结果
+    // 新 API 中 output() 会自动处理所有资源清理
     const result = await cmd.output();
-
-    // Deno 严格检查要求显式等待进程状态完成
-    // Bun 环境下 output() 已经足够，不需要额外的 status() 调用
-    if (IS_DENO) {
-      try {
-        await cmd.status();
-      } catch {
-        // 如果 status() 失败（进程可能已经完成），忽略错误
-      }
-    }
-
-    // 关闭流以释放资源（Deno 严格检查）
-    try {
-      if (cmd.stdout) {
-        await cmd.stdout.cancel();
-      }
-    } catch {
-      // 忽略关闭时的错误
-    }
-    try {
-      if (cmd.stderr) {
-        await cmd.stderr.cancel();
-      }
-    } catch {
-      // 忽略关闭时的错误
-    }
 
     const { success, stderr } = result;
     if (!success) {
@@ -541,33 +484,8 @@ class FFmpegProcessor implements VideoProcessor {
       });
 
       // 使用 output() 等待进程完成并获取结果
+      // 新 API 中 output() 会自动处理所有资源清理
       const result = await cmd.output();
-
-      // Deno 严格检查要求显式等待进程状态完成
-      // Bun 环境下 output() 已经足够，不需要额外的 status() 调用
-      if (IS_DENO) {
-        try {
-          await cmd.status();
-        } catch {
-          // 如果 status() 失败（进程可能已经完成），忽略错误
-        }
-      }
-
-      // 关闭流以释放资源（Deno 严格检查）
-      try {
-        if (cmd.stdout) {
-          await cmd.stdout.cancel();
-        }
-      } catch {
-        // 忽略关闭时的错误
-      }
-      try {
-        if (cmd.stderr) {
-          await cmd.stderr.cancel();
-        }
-      } catch {
-        // 忽略关闭时的错误
-      }
 
       const { stderr } = result;
       const output = new TextDecoder().decode(stderr);

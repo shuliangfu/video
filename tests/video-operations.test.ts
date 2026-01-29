@@ -10,7 +10,6 @@ import { describe, expect, it } from "@dreamer/test";
 import {
   createCommand,
   cwd,
-  IS_DENO,
   mkdir,
   readFile,
   stat as getFileStat,
@@ -36,6 +35,7 @@ const OUTPUT_DIR = join(cwd(), "tests", "output");
 
 /**
  * 检查 FFmpeg 是否可用
+ * 新版 createCommand API 中，output() 会自动处理进程和流的关闭
  */
 async function checkFFmpegAvailable(): Promise<boolean> {
   try {
@@ -46,33 +46,8 @@ async function checkFFmpegAvailable(): Promise<boolean> {
     });
 
     // 使用 output() 等待进程完成并获取结果
+    // 新 API 中 output() 会自动处理所有资源清理
     const result = await cmd.output();
-
-    // Deno 严格检查要求显式等待进程状态完成
-    // Bun 环境下 output() 已经足够，不需要额外的 status() 调用
-    if (IS_DENO) {
-      try {
-        await cmd.status();
-      } catch {
-        // 如果 status() 失败（进程可能已经完成），忽略错误
-      }
-    }
-
-    // 关闭流以释放资源（Deno 严格检查）
-    try {
-      if (cmd.stdout) {
-        await cmd.stdout.cancel();
-      }
-    } catch {
-      // 忽略关闭时的错误
-    }
-    try {
-      if (cmd.stderr) {
-        await cmd.stderr.cancel();
-      }
-    } catch {
-      // 忽略关闭时的错误
-    }
 
     const { success, stderr } = result;
 

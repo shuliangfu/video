@@ -3,7 +3,7 @@
 > 一个兼容 Deno 和 Bun 的视频处理库，提供视频处理、视频转换、视频压缩等功能
 
 [![JSR](https://jsr.io/badges/@dreamer/video)](https://jsr.io/@dreamer/video)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
 
 ---
 
@@ -37,7 +37,7 @@ deno add jsr:@dreamer/video
 
 ## 环境兼容性
 
-- **运行时要求**：Deno 2.5+ 或 Bun 1.0+
+- **运行时要求**：Deno 2.6+ 或 Bun 1.3.5
 - **服务端**：✅ 支持（兼容 Deno 和 Bun 运行时，使用 FFmpeg）
   - 使用 FFmpeg 命令行工具
   - 支持所有视频处理功能

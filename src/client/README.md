@@ -3,7 +3,7 @@
 > 一个用于浏览器的视频处理库，提供视频处理、视频转换、视频压缩等功能（功能受限）
 
 [![JSR](https://jsr.io/badges/@dreamer/video/client)](https://jsr.io/@dreamer/video/client)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
 
 ---
 
