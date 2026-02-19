@@ -1,0 +1,48 @@
+{
+  "video": {
+    "ffmpegNotFound": "FFmpeg not found. {hint}",
+    "ffmpegProcessFailed": "FFmpeg process failed: {error}",
+    "installHint": {
+      "separator": "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+      "title": "FFmpeg is not installed or not found",
+      "macosAuto": "📦 Auto install (recommended):",
+      "macosManual": "📝 Manual install:",
+      "macosStep1": "1. Ensure Homebrew is installed (https://brew.sh)",
+      "macosStep2": "2. Run: {command}",
+      "linuxCmd": "📦 Install command:",
+      "linuxOther": "   Or use other package managers:",
+      "linuxArch": "   • Arch: sudo pacman -S ffmpeg",
+      "linuxFedora": "   • Fedora: sudo dnf install ffmpeg",
+      "windowsSteps": "📦 Install steps:",
+      "windowsStep1": "   1. Visit: {url}",
+      "windowsStep2": "   2. Download Windows build",
+      "windowsStep3": "   3. Extract and add to PATH",
+      "windowsStep4": "   4. Ensure ffmpeg.exe is in PATH",
+      "installCommand": "📦 Install command:",
+      "afterInstall": "💡 After installation, please re-run the program.",
+      "linuxUsePkgManager": "Please use your Linux distribution package manager to install FFmpeg",
+      "windowsVisit": "Visit {url} to download and install FFmpeg",
+      "unknownOs": "Please install FFmpeg according to your operating system"
+    },
+    "autoInstall": {
+      "detected": "🔍 Homebrew detected, attempting to install FFmpeg...",
+      "pleaseWait": "⏳ This may take a few minutes, please wait...",
+      "success": "✅ FFmpeg installed successfully!",
+      "failedMaybeInstalled": "⚠️  Auto install failed (may already be installed or need permission)",
+      "failedExitCode": "⚠️  Auto install failed (exit code: {code})",
+      "noBrew": "ℹ️  Homebrew not detected, cannot auto install",
+      "linuxManual": "ℹ️  Linux requires admin rights, cannot auto install",
+      "linuxManualTip": "💡 Please run the install command manually (see hint below)",
+      "windowsManual": "ℹ️  Windows requires manual download and install",
+      "installError": "⚠️  Error during auto install: {message}",
+      "ffmpegNotFoundTry": "🔍 FFmpeg not found, attempting auto install...",
+      "installedButUnavailable": "⚠️  FFmpeg is installed but not available in this session.",
+      "refreshPathTip": "💡 Please try: 1) Refresh PATH; 2) Restart terminal; 3) Re-run the program."
+    }
+  },
+  "videoClient": {
+    "captureStreamUnsupported": "Browser does not support captureStream; video trim is not available.",
+    "canvas2dContextFailed": "Failed to get Canvas 2D context.",
+    "canvasStreamFailed": "Failed to create media stream; browser may not support Canvas recording."
+  }
+}

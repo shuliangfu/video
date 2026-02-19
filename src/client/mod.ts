@@ -7,6 +7,8 @@
  * 注意：客户端功能受限，仅支持简单的视频操作。
  */
 
+import { $tr } from "../i18n.ts";
+
 /**
  * Canvas 接口（兼容 HTMLCanvasElement）
  */
@@ -320,7 +322,7 @@ export async function crop(
         // 创建 MediaRecorder 录制片段
         // 注意：captureStream 可能不被所有浏览器支持
         if (!videoElement.captureStream) {
-          reject(new Error("浏览器不支持 captureStream，无法进行视频裁剪"));
+          reject(new Error($tr("videoClient.captureStreamUnsupported")));
           return;
         }
 
@@ -398,7 +400,7 @@ export function applyFilter(
 
         const ctx = canvas.getContext("2d");
         if (!ctx) {
-          reject(new Error("无法获取 Canvas 2D 上下文"));
+          reject(new Error($tr("videoClient.canvas2dContextFailed")));
           return;
         }
 
@@ -416,7 +418,7 @@ export function applyFilter(
           : createCanvasStream(canvas, video);
 
         if (!stream) {
-          reject(new Error("无法创建媒体流，浏览器可能不支持 Canvas 录制"));
+          reject(new Error($tr("videoClient.canvasStreamFailed")));
           return;
         }
 

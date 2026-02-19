@@ -95,6 +95,9 @@ async function ensureOutputDir() {
   }
 }
 
+/** 执行 FFmpeg 的用例超时时间（毫秒），Bun 默认 5s 不足，需 120s 避免 convert/compress/merge 等被 kill */
+const FFMPEG_TEST_TIMEOUT_MS = 120_000;
+
 describe("视频实际操作", () => {
   let ffmpegAvailable = false;
 
@@ -141,7 +144,7 @@ describe("视频实际操作", () => {
         console.error("❌ 获取视频信息失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
 
     it("应该从 Uint8Array 获取视频信息", async () => {
       if (!ffmpegAvailable) {
@@ -174,7 +177,7 @@ describe("视频实际操作", () => {
         console.error("❌ 从 Uint8Array 获取视频信息失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
   });
 
   describe("convert", () => {
@@ -205,7 +208,7 @@ describe("视频实际操作", () => {
         console.error("❌ 视频转换失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
 
     it("应该将视频转换为 AVI 格式", async () => {
       if (!ffmpegAvailable) {
@@ -231,7 +234,7 @@ describe("视频实际操作", () => {
         console.error("❌ 视频转换失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
 
     it("应该将视频转换为 AV1 格式", async () => {
       if (!ffmpegAvailable) {
@@ -271,7 +274,7 @@ describe("视频实际操作", () => {
         );
         // 不抛出错误，允许测试继续
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
   });
 
   describe("compress", () => {
@@ -310,7 +313,7 @@ describe("视频实际操作", () => {
         console.error("❌ 视频压缩失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
 
     it("应该压缩视频（低质量）", async () => {
       if (!ffmpegAvailable) {
@@ -336,7 +339,7 @@ describe("视频实际操作", () => {
         console.error("❌ 视频压缩失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
   });
 
   describe("crop", () => {
@@ -374,7 +377,7 @@ describe("视频实际操作", () => {
         console.error("❌ 视频裁剪失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
   });
 
   describe("extractThumbnail", () => {
@@ -410,7 +413,7 @@ describe("视频实际操作", () => {
         console.error("❌ 缩略图提取失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
   });
 
   describe("addWatermark", () => {
@@ -448,7 +451,7 @@ describe("视频实际操作", () => {
         );
         // 不抛出错误，允许测试继续
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
   });
 
   describe("merge", () => {
@@ -499,7 +502,7 @@ describe("视频实际操作", () => {
         console.error("❌ 视频合并失败:", error);
         throw error;
       }
-    });
+    }, { timeout: FFMPEG_TEST_TIMEOUT_MS });
   });
 
   // 保留测试输出文件（不清理）
