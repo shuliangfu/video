@@ -20,6 +20,7 @@ import {
   writeFile,
   writeTextFile,
 } from "@dreamer/runtime-adapter";
+import { $tr } from "./i18n.ts";
 
 /**
  * 视频信息接口
@@ -260,47 +261,55 @@ async function getInstallHint(): Promise<string> {
           await yumCheck.output();
           installCommand = "sudo yum install -y ffmpeg";
         } catch {
-          installCommand = "请使用您的 Linux 发行版的包管理器安装 FFmpeg";
+          installCommand = $tr("video.installHint.linuxUsePkgManager");
         }
       }
       break;
     case "windows":
       installUrl = "https://ffmpeg.org/download.html";
-      installCommand = `请访问 ${installUrl} 下载并安装 FFmpeg`;
+      installCommand = $tr("video.installHint.windowsVisit", {
+        url: installUrl,
+      });
       break;
     default:
-      installCommand = "请根据您的操作系统安装 FFmpeg";
+      installCommand = $tr("video.installHint.unknownOs");
   }
 
+  const sep = $tr("video.installHint.separator");
   let hint = "\n";
-  hint += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-  hint += "  FFmpeg 未安装或未找到\n";
-  hint += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+  hint += `${sep}\n`;
+  hint += `  ${$tr("video.installHint.title")}\n`;
+  hint += `${sep}\n\n`;
 
   if (os === "macos") {
-    hint += "📦 自动安装（推荐）：\n";
+    hint += $tr("video.installHint.macosAuto") + "\n";
     hint += `   ${installCommand}\n\n`;
-    hint += "📝 手动安装：\n";
-    hint += "   1. 确保已安装 Homebrew (https://brew.sh)\n";
-    hint += `   2. 运行: ${installCommand}\n\n`;
+    hint += $tr("video.installHint.macosManual") + "\n";
+    hint += `   ${$tr("video.installHint.macosStep1")}\n`;
+    hint += `   ${
+      $tr("video.installHint.macosStep2", { command: installCommand })
+    }\n\n`;
   } else if (os === "linux") {
-    hint += "📦 安装命令：\n";
+    hint += $tr("video.installHint.linuxCmd") + "\n";
     hint += `   ${installCommand}\n\n`;
-    hint += "   或者使用其他包管理器：\n";
-    hint += "   • Arch: sudo pacman -S ffmpeg\n";
-    hint += "   • Fedora: sudo dnf install ffmpeg\n\n";
+    hint += $tr("video.installHint.linuxOther") + "\n";
+    hint += $tr("video.installHint.linuxArch") + "\n";
+    hint += $tr("video.installHint.linuxFedora") + "\n\n";
   } else if (os === "windows") {
-    hint += "📦 安装步骤：\n";
-    hint += `   1. 访问: ${installUrl}\n`;
-    hint += "   2. 下载 Windows 构建版本\n";
-    hint += "   3. 解压并添加到 PATH 环境变量\n";
-    hint += "   4. 确保 ffmpeg.exe 在 PATH 中可用\n\n";
+    hint += $tr("video.installHint.windowsSteps") + "\n";
+    hint += `   ${
+      $tr("video.installHint.windowsStep1", { url: installUrl })
+    }\n`;
+    hint += `   ${$tr("video.installHint.windowsStep2")}\n`;
+    hint += `   ${$tr("video.installHint.windowsStep3")}\n`;
+    hint += `   ${$tr("video.installHint.windowsStep4")}\n\n`;
   } else {
-    hint += `📦 安装命令：\n   ${installCommand}\n\n`;
+    hint += $tr("video.installHint.installCommand") + "\n";
+    hint += `   ${installCommand}\n\n`;
   }
 
-  hint += "💡 安装完成后，请重新运行程序。\n";
-  hint += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+  hint += $tr("video.installHint.afterInstall") + "\n";
+  hint += `${sep}\n`;
 
   return hint;
 }
@@ -343,8 +352,8 @@ async function tryAutoInstall(): Promise<boolean> {
 
       const { success: brewExists } = await brewCheck.output();
       if (brewExists) {
-        console.log("🔍 检测到 Homebrew，正在尝试安装 FFmpeg...");
-        console.log("⏳ 这可能需要几分钟时间，请稍候...");
+        console.log($tr("video.autoInstall.detected"));
+        console.log($tr("video.autoInstall.pleaseWait"));
 
         const installCmd = createCommand("brew", {
           args: ["install", "ffmpeg"],
@@ -354,32 +363,32 @@ async function tryAutoInstall(): Promise<boolean> {
 
         const { success, code } = await installCmd.output();
         if (success) {
-          console.log("✅ FFmpeg 安装成功！");
+          console.log($tr("video.autoInstall.success"));
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return true;
         } else {
           if (code === 1) {
-            console.warn("⚠️  自动安装失败（可能已安装或需要权限）");
+            console.warn($tr("video.autoInstall.failedMaybeInstalled"));
           } else {
-            console.warn(`⚠️  自动安装失败（退出码: ${code}）`);
+            console.warn(
+              $tr("video.autoInstall.failedExitCode", { code: String(code) }),
+            );
           }
         }
       } else {
-        console.log("ℹ️  未检测到 Homebrew，无法自动安装");
+        console.log($tr("video.autoInstall.noBrew"));
       }
     } else if (os === "linux") {
-      console.log("ℹ️  Linux 系统需要管理员权限，无法自动安装");
-      console.log("💡 请手动运行安装命令（见下方提示）");
+      console.log($tr("video.autoInstall.linuxManual"));
+      console.log($tr("video.autoInstall.linuxManualTip"));
       return false;
     } else if (os === "windows") {
-      console.log("ℹ️  Windows 系统需要手动下载安装程序");
+      console.log($tr("video.autoInstall.windowsManual"));
       return false;
     }
   } catch (error) {
-    console.warn(
-      "⚠️  自动安装过程中出错:",
-      error instanceof Error ? error.message : String(error),
-    );
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn($tr("video.autoInstall.installError", { message }));
   }
 
   return false;
@@ -398,7 +407,7 @@ async function ensureFFmpeg(
   }
 
   if (autoInstall) {
-    console.log("🔍 FFmpeg 未找到，尝试自动安装...");
+    console.log($tr("video.autoInstall.ffmpegNotFoundTry"));
     const installed = await tryAutoInstall();
 
     if (installed) {
@@ -408,12 +417,8 @@ async function ensureFFmpeg(
         return ffmpegPath || "ffmpeg";
       } else {
         // 安装成功但检查时仍不可用，可能是 PATH 未刷新或需要重启终端
-        console.warn(
-          "⚠️  FFmpeg 已安装，但当前会话中仍不可用。",
-        );
-        console.warn(
-          "💡 请尝试：1) 刷新 PATH 环境变量；2) 重启终端；3) 重新运行程序。",
-        );
+        console.warn($tr("video.autoInstall.installedButUnavailable"));
+        console.warn($tr("video.autoInstall.refreshPathTip"));
         // 继续抛出错误，提示用户手动处理
       }
     }
@@ -422,7 +427,7 @@ async function ensureFFmpeg(
 
   // 只有在 FFmpeg 不可用且（未启用自动安装 或 自动安装失败）时才抛出错误
   const hint = await getInstallHint();
-  throw new Error(`FFmpeg 未找到。${hint}`);
+  throw new Error($tr("video.ffmpegNotFound", { hint }));
 }
 
 /**
@@ -455,7 +460,7 @@ class FFmpegProcessor implements VideoProcessor {
     const { success, stderr } = result;
     if (!success) {
       const error = new TextDecoder().decode(stderr);
-      throw new Error(`FFmpeg 处理失败: ${error}`);
+      throw new Error($tr("video.ffmpegProcessFailed", { error }));
     }
   }
 

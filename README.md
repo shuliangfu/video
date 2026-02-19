@@ -1,81 +1,89 @@
 # @dreamer/video
 
-> 一个兼容 Deno 和 Bun 的视频处理库，提供视频处理、视频转换、视频压缩等功能
+> 📖 English | [中文文档](./docs/zh-CN/README.md)
+
+> A video processing library compatible with Deno and Bun, providing video
+> processing, conversion, compression, and related features.
 
 [![JSR](https://jsr.io/badges/@dreamer/video)](https://jsr.io/@dreamer/video)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
 
 ---
 
-## 🎯 功能
+## Features
 
-视频处理库，用于视频处理、视频转换、视频压缩等场景，支持服务端和客户端。
+A video processing library for video processing, conversion, compression, and
+related scenarios, supporting both server and client.
 
-## 特性
+## Capabilities
 
-- **视频信息提取**：时长、分辨率、帧率、码率、编码格式等
-- **视频转换**：格式转换、编码转换、分辨率转换、帧率转换、码率控制
-- **视频压缩**：有损压缩、质量控制、文件大小优化
-- **视频编辑**：视频裁剪、视频拼接、水印添加、缩略图提取
-- **服务端和客户端支持**：
-  - 服务端：使用 FFmpeg 命令行工具
-  - 客户端：使用浏览器原生 API（功能受限）
+- **Video info extraction**: duration, resolution, frame rate, bitrate, codec
+  format, etc.
+- **Video conversion**: format conversion, codec conversion, resolution
+  conversion, frame rate conversion, bitrate control
+- **Video compression**: lossy compression, quality control, file size
+  optimization
+- **Video editing**: cropping, concatenation, watermarking, thumbnail extraction
+- **Server and client support**:
+  - Server: uses FFmpeg command-line tools
+  - Client: uses browser native APIs (with limited features)
 
-## 使用场景
+## Use cases
 
-- 视频上传和处理（用户上传视频、视频转码）
-- 视频格式转换（统一视频格式、兼容性处理）
-- 视频压缩优化（减少文件大小、提升加载速度）
-- 视频编辑（视频裁剪、拼接、水印添加）
-- 视频预览生成（缩略图、预览片段）
+- Video upload and processing (user uploads, transcoding)
+- Video format conversion (unified format, compatibility)
+- Video compression and optimization (smaller files, faster loading)
+- Video editing (crop, concatenate, add watermarks)
+- Video preview generation (thumbnails, preview clips)
 
-## 安装
+## Installation
 
 ```bash
 deno add jsr:@dreamer/video
 ```
 
-## 环境兼容性
+## Environment compatibility
 
-- **运行时要求**：Deno 2.6+ 或 Bun 1.3.5
-- **服务端**：✅ 支持（兼容 Deno 和 Bun 运行时，使用 FFmpeg）
-  - 使用 FFmpeg 命令行工具
-  - 支持所有视频处理功能
-  - 自动检测和安装 FFmpeg（macOS）
-  - 需要文件系统访问权限
-- **客户端**：⚠️ 部分支持（浏览器环境，使用浏览器原生 API）
-  - 使用浏览器原生 API（Video API、MediaRecorder）
-  - 支持视频播放、简单裁剪
-  - 功能受限，详见 [客户端文档](./src/client/README.md)
+- **Runtime**: Deno 2.6+ or Bun 1.3.5
+- **Server**: ✅ Supported (Deno and Bun, uses FFmpeg)
+  - Uses FFmpeg command-line tools
+  - Full video processing features
+  - Auto-detect and install FFmpeg (macOS)
+  - Requires file system access
+- **Client**: ⚠️ Partial (browser, uses native APIs)
+  - Uses browser native APIs (Video API, MediaRecorder)
+  - Video playback and simple cropping
+  - Limited features; see [client docs](./src/client/README.md)
 
-## 服务端使用
+## Server usage
 
-### 前置要求
+### Prerequisites
 
-服务端需要安装
-FFmpeg。库会自动检测并尝试安装（macOS），如果无法自动安装会显示安装提示。
+The server needs FFmpeg installed. The library will detect and try to install it
+(macOS); if auto-install is not possible, installation instructions are shown.
 
-**macOS**：
+**macOS**:
 
 ```bash
 brew install ffmpeg
 ```
 
-**Linux (Ubuntu/Debian)**：
+**Linux (Ubuntu/Debian)**:
 
 ```bash
 sudo apt-get install -y ffmpeg
 ```
 
-**Linux (CentOS/RHEL)**：
+**Linux (CentOS/RHEL)**:
 
 ```bash
 sudo yum install -y ffmpeg
 ```
 
-**Windows**： 访问 [FFmpeg 官网](https://ffmpeg.org/download.html) 下载并安装。
+**Windows**: Visit [FFmpeg downloads](https://ffmpeg.org/download.html) to
+download and install.
 
-### 基本使用
+### Basic usage
 
 ```typescript
 import {
@@ -89,10 +97,10 @@ import {
   merge,
 } from "jsr:@dreamer/video";
 
-// 方式1：使用便捷函数（推荐）
-// 库会自动检测并安装 FFmpeg（如果未安装）
+// Option 1: Convenience functions (recommended)
+// The library auto-detects and installs FFmpeg if needed
 
-// 获取视频信息
+// Get video info
 const info = await getVideoInfo("./input.mp4");
 console.log(info);
 // {
@@ -107,7 +115,7 @@ console.log(info);
 //   size: 75432100,
 // }
 
-// 格式转换
+// Format conversion
 await convert("./input.mp4", {
   format: "webm",
   codec: "vp9",
@@ -115,7 +123,7 @@ await convert("./input.mp4", {
   output: "./output.webm",
 });
 
-// 视频压缩
+// Video compression
 await compress("./input.mp4", {
   bitrate: 2000000,
   resolution: "1280x720",
@@ -123,20 +131,20 @@ await compress("./input.mp4", {
   output: "./compressed.mp4",
 });
 
-// 视频裁剪
+// Crop video
 await crop("./input.mp4", {
   start: 10,
   duration: 30,
   output: "./cropped.mp4",
 });
 
-// 视频拼接
+// Merge videos
 await merge(
   ["./video1.mp4", "./video2.mp4"],
   { output: "./merged.mp4" },
 );
 
-// 添加文字水印
+// Add text watermark
 await addWatermark("./input.mp4", {
   type: "text",
   text: "© 2024",
@@ -147,7 +155,7 @@ await addWatermark("./input.mp4", {
   output: "./watermarked.mp4",
 });
 
-// 添加图片水印
+// Add image watermark
 await addWatermark("./input.mp4", {
   type: "image",
   image: "./logo.png",
@@ -156,7 +164,7 @@ await addWatermark("./input.mp4", {
   output: "./watermarked.mp4",
 });
 
-// 提取缩略图
+// Extract thumbnail
 await extractThumbnail("./input.mp4", {
   time: 5,
   width: 320,
@@ -165,24 +173,24 @@ await extractThumbnail("./input.mp4", {
 });
 ```
 
-### 高级配置
+### Advanced configuration
 
 ```typescript
 import { createVideoProcessor } from "jsr:@dreamer/video";
 
-// 方式2：创建处理器实例（支持自定义配置）
+// Option 2: Create a processor instance (custom config)
 const processor = await createVideoProcessor({
-  // FFmpeg 命令路径（可选，默认自动检测）
+  // FFmpeg path (optional, auto-detected by default)
   ffmpegPath: "/usr/local/bin/ffmpeg",
 
-  // 临时文件目录（可选，默认系统临时目录）
+  // Temp directory (optional, default system temp)
   tempDir: "./temp",
 
-  // 是否自动安装 FFmpeg（默认：true）
+  // Auto-install FFmpeg (default: true)
   autoInstall: true,
 });
 
-// 使用处理器
+// Use the processor
 const info = await processor.getInfo("./input.mp4");
 await processor.convert("./input.mp4", {
   format: "webm",
@@ -190,9 +198,10 @@ await processor.convert("./input.mp4", {
 });
 ```
 
-## 客户端使用
+## Client usage
 
-客户端使用浏览器原生 API，功能受限。详见 [客户端文档](./src/client/README.md)。
+The client uses browser native APIs with limited features. See
+[client docs](./src/client/README.md).
 
 ```typescript
 import {
@@ -203,184 +212,199 @@ import {
   seek,
 } from "jsr:@dreamer/video/client";
 
-// 从文件获取视频信息
+// Get video info from file
 const fileInput = document.querySelector(
   'input[type="file"]',
 ) as HTMLInputElement;
 const file = fileInput.files?.[0];
 if (file) {
   const info = await getVideoInfo(file);
-  console.log("视频信息:", info);
+  console.log("Video info:", info);
 }
 
-// 视频播放控制
+// Playback control
 const video = document.querySelector("video") as HTMLVideoElement;
 await play(video);
 pause(video);
-seek(video, 10); // 跳转到第 10 秒
+seek(video, 10); // Seek to 10 seconds
 ```
 
-## API 文档
+## API reference
 
-### 服务端 API
+### Server API
 
 #### `getVideoInfo(video)`
 
-获取视频信息。
+Get video information.
 
-**参数**：
+**Parameters**:
 
-- `video`: `string | Uint8Array` - 视频文件路径或数据
+- `video`: `string | Uint8Array` — Path or data of the video file
 
-**返回**：`Promise<VideoInfo>` - 视频信息
+**Returns**: `Promise<VideoInfo>` — Video information
 
 #### `convert(video, options)`
 
-转换视频格式。
+Convert video format.
 
-**参数**：
+**Parameters**:
 
-- `video`: `string` - 视频文件路径
-- `options`: `ConvertOptions` - 转换选项
-  - `format`: `"mp4" | "webm" | "avi" | "mov" | "mkv" | "flv" | "wmv"` -
-    目标格式
-  - `codec`: `"h264" | "h265" | "vp9" | "av1" | "vp8"` - 视频编码
-  - `resolution`: `string` - 分辨率（如 "1920x1080"）
-  - `fps`: `number` - 帧率
-  - `bitrate`: `number` - 码率（bps）
-  - `quality`: `"low" | "medium" | "high"` - 质量
-  - `output`: `string` - 输出文件路径
+- `video`: `string` — Video file path
+- `options`: `ConvertOptions` — Conversion options
+  - `format`: `"mp4" | "webm" | "avi" | "mov" | "mkv" | "flv" | "wmv"` — Target
+    format
+  - `codec`: `"h264" | "h265" | "vp9" | "av1" | "vp8"` — Video codec
+  - `resolution`: `string` — Resolution (e.g. "1920x1080")
+  - `fps`: `number` — Frame rate
+  - `bitrate`: `number` — Bitrate (bps)
+  - `quality`: `"low" | "medium" | "high"` — Quality
+  - `output`: `string` — Output file path
 
 #### `compress(video, options)`
 
-压缩视频。
+Compress video.
 
-**参数**：
+**Parameters**:
 
-- `video`: `string` - 视频文件路径
-- `options`: `CompressOptions` - 压缩选项
-  - `bitrate`: `number` - 码率（bps）
-  - `resolution`: `string` - 分辨率
-  - `quality`: `"low" | "medium" | "high"` - 质量
-  - `output`: `string` - 输出文件路径
+- `video`: `string` — Video file path
+- `options`: `CompressOptions` — Compression options
+  - `bitrate`: `number` — Bitrate (bps)
+  - `resolution`: `string` — Resolution
+  - `quality`: `"low" | "medium" | "high"` — Quality
+  - `output`: `string` — Output file path
 
 #### `crop(video, options)`
 
-裁剪视频。
+Crop video.
 
-**参数**：
+**Parameters**:
 
-- `video`: `string` - 视频文件路径
-- `options`: `CropOptions` - 裁剪选项
-  - `start`: `number` - 开始时间（秒）
-  - `duration`: `number` - 持续时间（秒）
-  - `end`: `number` - 结束时间（秒，与 duration 二选一）
-  - `output`: `string` - 输出文件路径
+- `video`: `string` — Video file path
+- `options`: `CropOptions` — Crop options
+  - `start`: `number` — Start time (seconds)
+  - `duration`: `number` — Duration (seconds)
+  - `end`: `number` — End time (seconds, alternative to duration)
+  - `output`: `string` — Output file path
 
 #### `merge(videos, options)`
 
-合并视频。
+Merge videos.
 
-**参数**：
+**Parameters**:
 
-- `videos`: `string[]` - 视频文件路径数组
-- `options`: `MergeOptions` - 合并选项
-  - `output`: `string` - 输出文件路径
+- `videos`: `string[]` — Array of video file paths
+- `options`: `MergeOptions` — Merge options
+  - `output`: `string` — Output file path
 
 #### `addWatermark(video, options)`
 
-添加水印。
+Add watermark.
 
-**参数**：
+**Parameters**:
 
-- `video`: `string` - 视频文件路径
-- `options`: `WatermarkOptions` - 水印选项
-  - `type`: `"text" | "image"` - 水印类型
-  - `text`: `string` - 文字内容（当 type 为 "text" 时）
-  - `image`: `string` - 图片路径（当 type 为 "image" 时）
+- `video`: `string` — Video file path
+- `options`: `WatermarkOptions` — Watermark options
+  - `type`: `"text" | "image"` — Watermark type
+  - `text`: `string` — Text content (when type is "text")
+  - `image`: `string` — Image path (when type is "image")
   - `position`:
-    `"top-left" | "top-right" | "bottom-left" | "bottom-right" | "center"` -
-    位置
-  - `fontSize`: `number` - 字体大小（当 type 为 "text" 时）
-  - `color`: `string` - 文字颜色（当 type 为 "text" 时）
-  - `opacity`: `number` - 透明度（0-1）
-  - `output`: `string` - 输出文件路径
+    `"top-left" | "top-right" | "bottom-left" | "bottom-right" | "center"` —
+    Position
+  - `fontSize`: `number` — Font size (when type is "text")
+  - `color`: `string` — Text color (when type is "text")
+  - `opacity`: `number` — Opacity (0–1)
+  - `output`: `string` — Output file path
 
 #### `extractThumbnail(video, options)`
 
-提取缩略图。
+Extract thumbnail.
 
-**参数**：
+**Parameters**:
 
-- `video`: `string` - 视频文件路径
-- `options`: `ThumbnailOptions` - 缩略图选项
-  - `time`: `number` - 时间点（秒）
-  - `width`: `number` - 宽度（可选）
-  - `height`: `number` - 高度（可选）
-  - `output`: `string` - 输出文件路径
+- `video`: `string` — Video file path
+- `options`: `ThumbnailOptions` — Thumbnail options
+  - `time`: `number` — Time (seconds)
+  - `width`: `number` — Width (optional)
+  - `height`: `number` — Height (optional)
+  - `output`: `string` — Output file path
 
-### 客户端 API
+### Client API
 
-详见 [客户端文档](./src/client/README.md)。
+See [client docs](./src/client/README.md).
 
-## 支持的视频格式
+## Supported formats
 
-- **输入格式**：MP4、WebM、AVI、MOV、MKV、FLV、WMV 等（取决于 FFmpeg 支持）
-- **输出格式**：MP4、WebM、AVI、MOV、MKV、FLV、WMV 等
+- **Input**: MP4, WebM, AVI, MOV, MKV, FLV, WMV, etc. (depending on FFmpeg)
+- **Output**: MP4, WebM, AVI, MOV, MKV, FLV, WMV, etc.
 
-## 自动安装 FFmpeg
+## Auto-install FFmpeg
 
-库会自动检测 FFmpeg 是否已安装：
+The library detects whether FFmpeg is installed:
 
-- **macOS**：如果检测到 Homebrew，会自动尝试安装 FFmpeg
-- **Linux/Windows**：显示详细的安装提示和命令
+- **macOS**: If Homebrew is present, it will try to install FFmpeg
+- **Linux/Windows**: Shows installation instructions and commands
 
-如果自动安装失败或无法自动安装，会显示清晰的安装提示，包括：
+If auto-install fails or is not available, clear instructions are shown,
+including:
 
-- 操作系统特定的安装命令
-- 安装步骤说明
-- 下载链接（Windows）
+- OS-specific install commands
+- Step-by-step instructions
+- Download links (Windows)
 
-## 性能优化
+## Performance
 
-- **服务端**：使用 FFmpeg 命令行工具，性能优秀
-- **客户端**：使用浏览器原生 API，适合简单操作
-- **临时文件**：自动管理临时文件，处理完成后自动清理
-- **内存优化**：支持大文件处理，自动管理内存
+- **Server**: Uses FFmpeg CLI; high performance
+- **Client**: Uses browser native APIs; suitable for simple operations
+- **Temp files**: Managed automatically; cleaned after processing
+- **Memory**: Handles large files with automatic memory management
 
-## 注意事项
+## Notes
 
-- **服务端**：需要安装 FFmpeg，库会自动检测并尝试安装
-- **客户端**：使用浏览器原生 API，功能受限
-- **文件大小**：处理大视频文件时注意内存占用
-- **格式支持**：不同格式的功能支持可能不同
-- **处理时间**：视频处理可能需要较长时间，建议异步处理
+- **Server**: FFmpeg is required; the library detects and can try to install it
+- **Client**: Uses browser native APIs; feature set is limited
+- **File size**: Be aware of memory usage for large videos
+- **Formats**: Support may vary by format
+- **Duration**: Processing can take time; use async handling
 
-## 更多信息
+## More
 
-- [客户端文档](./src/client/README.md) - 客户端使用说明
-- [FFmpeg 官网](https://ffmpeg.org/) - FFmpeg 官方文档
-
----
-
-## 📝 备注
-
-- **服务端和客户端分离**：通过 `/client` 子路径明确区分服务端和客户端代码
-- **统一接口**：服务端和客户端使用相同的 API 接口，降低学习成本
-- **类型安全**：完整的 TypeScript 类型支持
-- **依赖**：服务端需要 FFmpeg（可选），客户端使用浏览器原生 API
+- [Client docs](./src/client/README.md) — Client usage
+- [FFmpeg](https://ffmpeg.org/) — FFmpeg documentation
 
 ---
 
-## 🤝 贡献
+## Remarks
 
-欢迎提交 Issue 和 Pull Request！
+- **Server vs client**: The `/client` subpath clearly separates server and
+  client code
+- **Unified API**: Same API surface on server and client for easier learning
+- **Types**: Full TypeScript types
+- **Dependencies**: Server needs FFmpeg (optional); client uses browser APIs
+  only
 
 ---
 
-## 📄 许可证
+## Changelog
 
-MIT License - 详见 [LICENSE.md](./LICENSE.md)
+**[1.0.0]** - 2026-02-20
+
+- **Added**: First stable release. Server: FFmpeg-based getVideoInfo, convert,
+  compress, crop, merge, addWatermark, extractThumbnail; auto-detect/install
+  FFmpeg (macOS). Client: getVideoInfo, play/pause/seek, crop (segment),
+  applyFilter. i18n (en-US, zh-CN). 27 tests.
+- Full history: [CHANGELOG](./docs/en-US/CHANGELOG.md)
+
+---
+
+## Contributing
+
+Issues and Pull Requests are welcome.
+
+---
+
+## License
+
+Apache License 2.0 — see [LICENSE](./LICENSE)
 
 ---
 

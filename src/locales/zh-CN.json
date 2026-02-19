@@ -1,0 +1,48 @@
+{
+  "video": {
+    "ffmpegNotFound": "FFmpeg 未找到。{hint}",
+    "ffmpegProcessFailed": "FFmpeg 处理失败: {error}",
+    "installHint": {
+      "separator": "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+      "title": "FFmpeg 未安装或未找到",
+      "macosAuto": "📦 自动安装（推荐）：",
+      "macosManual": "📝 手动安装：",
+      "macosStep1": "1. 确保已安装 Homebrew (https://brew.sh)",
+      "macosStep2": "2. 运行: {command}",
+      "linuxCmd": "📦 安装命令：",
+      "linuxOther": "   或者使用其他包管理器：",
+      "linuxArch": "   • Arch: sudo pacman -S ffmpeg",
+      "linuxFedora": "   • Fedora: sudo dnf install ffmpeg",
+      "windowsSteps": "📦 安装步骤：",
+      "windowsStep1": "   1. 访问: {url}",
+      "windowsStep2": "   2. 下载 Windows 构建版本",
+      "windowsStep3": "   3. 解压并添加到 PATH 环境变量",
+      "windowsStep4": "   4. 确保 ffmpeg.exe 在 PATH 中可用",
+      "installCommand": "📦 安装命令：",
+      "afterInstall": "💡 安装完成后，请重新运行程序。",
+      "linuxUsePkgManager": "请使用您的 Linux 发行版的包管理器安装 FFmpeg",
+      "windowsVisit": "请访问 {url} 下载并安装 FFmpeg",
+      "unknownOs": "请根据您的操作系统安装 FFmpeg"
+    },
+    "autoInstall": {
+      "detected": "🔍 检测到 Homebrew，正在尝试安装 FFmpeg...",
+      "pleaseWait": "⏳ 这可能需要几分钟时间，请稍候...",
+      "success": "✅ FFmpeg 安装成功！",
+      "failedMaybeInstalled": "⚠️  自动安装失败（可能已安装或需要权限）",
+      "failedExitCode": "⚠️  自动安装失败（退出码: {code}）",
+      "noBrew": "ℹ️  未检测到 Homebrew，无法自动安装",
+      "linuxManual": "ℹ️  Linux 系统需要管理员权限，无法自动安装",
+      "linuxManualTip": "💡 请手动运行安装命令（见下方提示）",
+      "windowsManual": "ℹ️  Windows 系统需要手动下载安装程序",
+      "installError": "⚠️  自动安装过程中出错: {message}",
+      "ffmpegNotFoundTry": "🔍 FFmpeg 未找到，尝试自动安装...",
+      "installedButUnavailable": "⚠️  FFmpeg 已安装，但当前会话中仍不可用。",
+      "refreshPathTip": "💡 请尝试：1) 刷新 PATH 环境变量；2) 重启终端；3) 重新运行程序。"
+    }
+  },
+  "videoClient": {
+    "captureStreamUnsupported": "浏览器不支持 captureStream，无法进行视频裁剪",
+    "canvas2dContextFailed": "无法获取 Canvas 2D 上下文",
+    "canvasStreamFailed": "无法创建媒体流，浏览器可能不支持 Canvas 录制"
+  }
+}
