@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from "@dreamer/test";
-import { createVideoProcessor, getVideoInfo } from "../src/mod.ts";
+import { createVideoProcessor } from "../src/mod.ts";
 
 describe("Video 服务端", () => {
   describe("createVideoProcessor", () => {
@@ -24,9 +24,12 @@ describe("Video 服务端", () => {
 
   describe("getVideoInfo", () => {
     it("应该在文件不存在时抛出错误", async () => {
+      // CI 上无 FFmpeg 时，顶层 getVideoInfo 会触发 autoInstall（brew install ffmpeg）
+      // 导致 macOS CI 5s 超时。改用 autoInstall: false 的处理器，FFmpeg 不可用直接抛错。
+      const processor = await createVideoProcessor({ autoInstall: false });
       let error: Error | null = null;
       try {
-        await getVideoInfo("nonexistent-video-file.mp4");
+        await processor.getInfo("nonexistent-video-file.mp4");
       } catch (e) {
         error = e as Error;
       }

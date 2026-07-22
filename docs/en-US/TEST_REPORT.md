@@ -4,13 +4,14 @@ English | [中文 (Chinese)](../zh-CN/TEST_REPORT.md)
 
 ## Test Overview
 
-- **Package Version**: @dreamer/video@1.0.0
-- **Test Library Version**: @dreamer/test@^1.0.9
-- **Test Framework**: @dreamer/test (compatible with Deno and Bun)
-- **Test Date**: 2026-02-19
+- **Package Version**: @dreamer/video@1.1.0
+- **Test Library Version**: @dreamer/test@^1.2.3
+- **Test Framework**: @dreamer/test, Deno built-in test, Bun test, Node tsx --test
+- **Test Date**: 2026-07-23
 - **Test Environment**:
-  - Deno 2.6+
-  - Bun (when running `bun test`)
+  - Deno 2.9+
+  - Bun 1.3+
+  - Node.js 22+
   - FFmpeg required for video-operations tests (server-side and real file
     operations)
 
@@ -18,11 +19,20 @@ English | [中文 (Chinese)](../zh-CN/TEST_REPORT.md)
 
 ### Overall Statistics
 
-- **Total Tests**: 27
-- **Passed**: 27 ✅
+- **Total Tests**: 27 (Deno) / 24 (Bun) / 24 (Node)
+- **Passed**: 27 / 24 / 24 ✅
 - **Failed**: 0
 - **Pass Rate**: 100% ✅
-- **Execution Time**: ~1m32s (Deno environment, depends on FFmpeg and disk I/O)
+- **Execution Time**: ~24s (Deno) / ~24s (Bun) / ~25s (Node), depends on FFmpeg
+  and disk I/O
+
+### Three-runtime Summary
+
+All three runtimes pass. Deno counts 27 (includes 3 `@dreamer/test cleanup
+browsers` injected by the Deno runner, one per test file); Bun and Node each
+count 24. No browser/Chromium tests — all 3 test files are server-side. When
+FFmpeg or the gitignored `tests/data/` files are unavailable (e.g. CI), the
+real-operation tests skip gracefully.
 
 ### Test File Statistics
 
@@ -139,14 +149,15 @@ English | [中文 (Chinese)](../zh-CN/TEST_REPORT.md)
    test data are available.
 4. ✅ **Error handling**: FFmpeg missing and file-not-found behavior are
    covered.
-5. ✅ **100% pass rate**: 27 tests, 0 failed.
+5. ✅ **100% pass rate**: 27 (Deno) / 24 (Bun) / 24 (Node) tests, 0 failed.
 
 ## Conclusion
 
-@dreamer/video is tested with 27 tests passing (100% pass rate). Client
-interface, server API, option validation, and real video operations
-(getVideoInfo, convert, compress, crop, extractThumbnail, addWatermark, merge)
-are covered. Tests depend on FFmpeg and test data for full video-operations
-coverage; otherwise they skip or assert errors appropriately.
+@dreamer/video passes all tests across Deno, Bun, and Node.js 22+ (100% pass
+rate). Client interface, server API, option validation, and real video
+operations (getVideoInfo, convert, compress, crop, extractThumbnail,
+addWatermark, merge) are covered. Tests depend on FFmpeg and test data for full
+video-operations coverage; otherwise they skip or assert errors appropriately.
 
-**Total tests**: 27 (24 from test files + 3 framework cleanup).
+**Total tests**: 27 (Deno, 24 from test files + 3 framework cleanup) / 24
+(Bun) / 24 (Node).

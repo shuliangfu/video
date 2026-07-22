@@ -4,24 +4,32 @@
 
 ## 测试概览
 
-- **包版本**：@dreamer/video@1.0.0
-- **测试库版本**：@dreamer/test@^1.0.9
-- **测试框架**：@dreamer/test（兼容 Deno 与 Bun）
-- **测试日期**：2026-02-19
+- **包版本**：@dreamer/video@1.1.0
+- **测试库版本**：@dreamer/test@^1.2.3
+- **测试框架**：@dreamer/test、Deno 内置测试、Bun test、Node tsx --test
+- **测试日期**：2026-07-23
 - **测试环境**：
-  - Deno 2.6+
-  - Bun（运行 `bun test` 时）
+  - Deno 2.9+
+  - Bun 1.3+
+  - Node.js 22+
   - 视频实际操作测试需安装 FFmpeg（服务端与真实文件操作）
 
 ## 测试结果
 
 ### 总体统计
 
-- **总测试数**：27
-- **通过**：27 ✅
+- **总测试数**：27（Deno）/ 24（Bun）/ 24（Node）
+- **通过**：27 / 24 / 24 ✅
 - **失败**：0
 - **通过率**：100% ✅
-- **执行时间**：约 1m32s（Deno 环境，视 FFmpeg 与磁盘 I/O 而定）
+- **执行时间**：约 24s（Deno）/ 24s（Bun）/ 25s（Node），视 FFmpeg 与磁盘 I/O 而定
+
+### 三端测试摘要
+
+三端全部通过。Deno 计 27 条（含 3 条 Deno runner 注入的 `@dreamer/test cleanup
+browsers`，每个测试文件一条）；Bun 与 Node 各计 24 条。无浏览器/Chromium 测试——3
+个测试文件均为纯服务端测试。当 FFmpeg 或 gitignored 的 `tests/data/` 文件不可用
+（如 CI）时，真实操作测试会优雅跳过。
 
 ### 测试文件统计
 
@@ -132,12 +140,12 @@
 3. ✅ **实际操作**：video-operations.test.ts 在具备 FFmpeg
    与测试数据时执行真实转换、压缩、裁剪、缩略图、水印、合并。
 4. ✅ **错误处理**：FFmpeg 缺失与文件不存在等行为有覆盖。
-5. ✅ **100% 通过率**：27 个测试，0 失败。
+5. ✅ **100% 通过率**：27（Deno）/ 24（Bun）/ 24（Node）个测试，0 失败。
 
 ## 结论
 
-@dreamer/video 共 27 个测试全部通过（100% 通过率）。客户端接口、服务端
+@dreamer/video 在 Deno、Bun、Node.js 22+ 三端全部测试通过（100% 通过率）。客户端接口、服务端
 API、选项校验及真实视频操作（getVideoInfo、convert、compress、crop、extractThumbnail、addWatermark、merge）均已覆盖。完整视频操作依赖
 FFmpeg 与测试数据；否则测试会跳过或正确断言错误。
 
-**总测试数**：27（24 个来自测试文件 + 3 个框架清理）。
+**总测试数**：27（Deno，24 个来自测试文件 + 3 个框架清理）/ 24（Bun）/ 24（Node）。

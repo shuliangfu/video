@@ -107,8 +107,23 @@ describe("视频实际操作", () => {
     if (!ffmpegAvailable) {
       console.log("⚠️  FFmpeg 未安装，跳过实际视频操作测试");
     } else {
-      console.log("✅ FFmpeg 可用，开始实际视频操作测试");
-      await ensureOutputDir();
+      // CI 上 tests/data 被 gitignore，数据文件可能不存在（如 Windows CI 自带 FFmpeg）
+      let dataFilesAvailable = false;
+      try {
+        const fileStat = await getFileStat(VIDEO1);
+        dataFilesAvailable = fileStat.isFile;
+      } catch {
+        dataFilesAvailable = false;
+      }
+      if (!dataFilesAvailable) {
+        console.log(
+          "⚠️  测试数据文件不存在（tests/data 被 gitignore），跳过实际视频操作测试",
+        );
+        ffmpegAvailable = false;
+      } else {
+        console.log("✅ FFmpeg 可用，开始实际视频操作测试");
+        await ensureOutputDir();
+      }
     }
   });
 

@@ -11,7 +11,6 @@
 // 导入 runtime-adapter 提供的 API
 import {
   createCommand,
-  IS_BUN,
   IS_DENO,
   makeTempDir,
   makeTempFile,
@@ -216,15 +215,14 @@ function getOS(): "macos" | "linux" | "windows" | "unknown" {
     if (os === "linux") return "linux";
     if (os === "windows") return "windows";
     return "unknown";
-  } else if (IS_BUN) {
-    // Bun 环境
+  } else {
+    // Bun 与 Node 共用 process.platform（darwin/linux/win32）
     const platform = (globalThis as any).process?.platform;
     if (platform === "darwin") return "macos";
     if (platform === "linux") return "linux";
     if (platform === "win32") return "windows";
     return "unknown";
   }
-  return "unknown";
 }
 
 /**

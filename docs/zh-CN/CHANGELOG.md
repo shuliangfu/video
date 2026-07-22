@@ -7,6 +7,39 @@
 
 ---
 
+## [1.1.0] - 2026-07-23
+
+### 新增
+
+- **Node.js 22+ 兼容**：`getOS()` 通过共享的 `process.platform` 分支覆盖 Node
+  （Bun 与 Node 取值相同），安装提示在 Node 下可正确解析。其余代码已使用
+  `@dreamer/runtime-adapter` 的跨运行时 API（createCommand、makeTempDir、stat
+  等），无需改动。
+- **test:node** 脚本（`tsx --test --test-force-exit tests/*.test.ts`），适配
+  Node.js 22+ 测试运行器。
+- **CI 工作流**（9 jobs）：3 Deno v2.9 + 3 Bun + 3 Node 22（Linux/macOS/Windows）。
+- **tsconfig.json**：Node tsx 加载器配置。
+- **minimumDependencyAge: 0**：deno.json 中新增，支持当天发布的 JSR 依赖解析。
+
+### 变更
+
+- 升级依赖：@dreamer/i18n ^1.1.2、@dreamer/runtime-adapter ^1.2.2、
+  @dreamer/test ^1.2.3。
+- package.json 中 `engines.node` 设为 `>=22`。
+- publish.yml 仅在 `tags: [v*]` 时触发（原先同时监听 `main` 分支）。
+- .gitignore：取消忽略 `package.json` 与 `.npmrc`；新增 `package-lock.json`。
+
+### 修复
+
+- mod.test.ts：`getVideoInfo` 测试改用 `createVideoProcessor({ autoInstall:
+  false })`，避免在无 FFmpeg 的 macOS CI 上触发 `brew install ffmpeg`（5s
+  SIGTERM 超时）。
+- video-operations.test.ts：在 FFmpeg 可用性检查旁新增测试数据文件存在性检查，
+  使自带 FFmpeg 但缺少 gitignored `tests/data/` 文件的 Windows CI 跳过真实操作
+  而非失败。
+
+---
+
 ## [1.0.0] - 2026-02-20
 
 ### 新增

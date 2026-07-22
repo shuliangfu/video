@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.1.0] - 2026-07-23
+
+### Added
+
+- **Node.js 22+ compatibility**: `getOS()` now covers Node via the shared
+  `process.platform` branch (Bun and Node use the same value), so install hints
+  resolve correctly on Node. All other code already uses cross-runtime APIs
+  from `@dreamer/runtime-adapter` (createCommand, makeTempDir, stat, etc.).
+- **test:node** script (`tsx --test --test-force-exit tests/*.test.ts`) for the
+  Node.js 22+ test runner.
+- **CI workflow** (9 jobs): 3 Deno v2.9 + 3 Bun + 3 Node 22
+  (Linux/macOS/Windows).
+- **tsconfig.json**: Node tsx loader config.
+- **minimumDependencyAge: 0** in deno.json to resolve JSR deps published the
+  same day.
+
+### Changed
+
+- Upgraded deps: @dreamer/i18n ^1.1.2, @dreamer/runtime-adapter ^1.2.2,
+  @dreamer/test ^1.2.3.
+- `engines.node` set to `>=22` in package.json.
+- publish.yml now triggers only on `tags: [v*]` (previously also on `main`).
+- .gitignore: un-ignored `package.json` and `.npmrc`; added `package-lock.json`.
+
+### Fixed
+
+- mod.test.ts: `getVideoInfo` test now uses `createVideoProcessor({ autoInstall:
+  false })` to avoid triggering `brew install ffmpeg` (5s SIGTERM timeout) on
+  macOS CI without FFmpeg.
+- video-operations.test.ts: added test data file existence check alongside the
+  FFmpeg availability check, so Windows CI runners (which ship FFmpeg but lack
+  the gitignored `tests/data/` files) skip real operations instead of failing.
+
+---
+
 ## [1.0.0] - 2026-02-20
 
 ### Added
